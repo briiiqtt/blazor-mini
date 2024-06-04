@@ -1,0 +1,101 @@
+@page "/chat"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+@using ProjectR.DTOs
+@using Newtonsoft.Json
+
+<PageTitle>채팅</PageTitle>
+
+<div style="width: 50vw">
+    <div>
+        @foreach (var groupName in groupNames)
+        {
+            <button @onclick="@(e=>SwitchRoom(groupName))">채팅방 @groupName</button>
+        }
+    </div>
+    <div class="chat-box" style="">
+        @foreach (var message in messages)
+        {
+            <div class="chat-content">[@message.UserName] : @message.Content</div>
+        }
+    </div>
+    <hr>
+    <div class="form-group">
+        <input @bind="userName" placeholder="사용자명" class="username-input" />
+    </div>
+    <div class="chat-content-input">
+        <textarea @bind="messageContent" placeholder="메시지를 입력해주세요." class="chat-textarea" />
+        <button @onclick="Send" disabled="@(!IsConnected)" class="chat-btn">⬆️</button>
+    </div>
+</div>
+
+
+
+@code {
+    private string[] groupNames = { "1", "2", "3" };
+    private HubConnection? hubConnection;
+    private List<Message> messages = new List<Message>();
+    private string userName = "";
+    private string messageContent = "";
+
+    protected override async Task OnInitializedAsync()
+    //OnInitializedAsync: Blazor 컴포넌트를 초기화(비동기적)
+    {
+        hubConnection = new HubConnectionBuilder()
+        //HubConnectionBuilder: SignalR 서버와의 연결을 설정
+        .WithUrl(Navigation.ToAbsoluteUri("/chathub"))
+        .Build();
+
+        hubConnection.On<string>("ReceiveMessage", (json) =>
+        //"ReceiveMessage" 이벤트 발생시의 콜백을 설정
+        {
+            Message? message = JsonConvert.DeserializeObject<Message>(json);
+            if (message is not null)
+            {
+                messages.Add(message);
+            }
+            InvokeAsync(StateHasChanged);
+            //InvokeAsync: 컴포넌트 상태 변경을 알림, StateHasChanged: UI 다시 렌더링 요청
+        });
+
+        await hubConnection.StartAsync();
+        //설정한대로 연결을 시작
+
+    }
+
+    private async Task Send()
+    {
+        if (hubConnection is not null)
+        {
+            Message message = new Message(userName, messageContent);
+            string json = JsonConvert.SerializeObject(message);
+            await hubConnection.SendAsync("SendMessage", json);
+            //OnInitialized때 초기화 돼있을 hubConnection 객체를 이용, "SendMessage"를 발생시킴
+            messageContent = "";
+        }
+    }
+
+    private async Task SwitchRoom(string groupName)
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("SwitchGroup", groupName);
+        }
+    }
+
+    public bool IsConnected =>
+    hubConnection?.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
+    //DisposeAsync: 명시적으로 호출하지 않고, 객체가 가비지컬렉터에 의해 메모리에서 제거될 때 호출됨
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("LeaveGroup");
+
+            await hubConnection.DisposeAsync();
+        }
+    }
+}

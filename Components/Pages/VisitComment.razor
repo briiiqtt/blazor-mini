@@ -1,0 +1,76 @@
+@page "/visitComment"
+@rendermode InteractiveServer
+@inject NavigationManager _navigationManager
+@inject IJSRuntime JsRuntime
+@using ProjectR.DTOs
+
+<PageTitle>김범수</PageTitle>
+
+<article class="page sans">
+  <header>
+    <div class="page-header-icon undefined"><span class="icon">👨‍💻</span></div>
+    <h1 class="page-title">방명록</h1>
+    <p class="page-description"></p>
+  </header>
+  <div class="page-body" style="margin=left: auto; max-width: 50vw;">
+    <div style="background-color: #292929; padding: 10px;">
+      <div>
+        작성자: <input type="text" placeholder="작성자명" @bind="writerName" class="comment-writer" /><br />
+        <div class="comment-content-box">
+          <textarea placeholder="내용을 입력해주세요." class="comment-content" @bind="content" />
+          <button class="comment-button" @onclick="Write">글 남기기</button>
+        </div>
+      </div>
+      <div>
+        @if (CommentList is not null)
+        {
+          @foreach (var comment in CommentList)
+          {
+            <div class="comment">
+              <span>@comment.Content</span>
+              <span style="font-size: 0.85rem;">@comment.WriterName | @comment.CreatedAt</span>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+</article>
+
+@code {
+
+  CommentModel cm = new CommentModel();
+
+  string writerName = "";
+  string content = "";
+  List<Comment>? CommentList;
+
+  protected override void OnInitialized()
+  {
+    CommentList = cm.Read();
+  }
+
+  async void Write()
+  {
+    if (writerName.Trim() == "")
+    {
+      await JsRuntime.InvokeVoidAsync("alert", "작성자 이름을 입력해주세요.");
+      return;
+    }
+    if (content.Trim() == "")
+    {
+      await JsRuntime.InvokeVoidAsync("alert", "내용을 입력해주세요.");
+      return;
+    }
+    int affectedRows = cm.Write(writerName, content);
+    if (affectedRows == 1)
+    {
+      CommentList = cm.Read();
+    }
+    else
+    {
+      await JsRuntime.InvokeVoidAsync("alert", "error");
+    }
+  }
+
+}

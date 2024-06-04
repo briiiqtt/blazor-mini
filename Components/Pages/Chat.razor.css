@@ -1,0 +1,30 @@
+.chat-box {
+  background-color: #3c3c3c;
+  height: 50vh;
+}
+
+.chat-content {
+  padding: 3px;
+}
+
+.username-input {
+  background-color: #bbbbbb;
+}
+
+.chat-content-input {
+  display: flex;
+  margin-top: 5px;
+}
+
+.chat-textarea {
+  width: 100%;
+  height: 80px;
+  resize: none;
+  background-color: #bbbbbb;
+}
+
+.chat-btn {
+  width: 80px;
+  height: 80px;
+  background-color: #cccccc;
+}
