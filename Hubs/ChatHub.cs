@@ -24,7 +24,11 @@ public class ChatHub : Hub
     {
         //그룹을 찾고, 그 그룹의 클라이언트들에게 메시지를 수신시키는 이벤트를 발생시킴
         groupManager.TryGetGroupName(Context.ConnectionId, out string? currentGroupName);
-        await Clients.Group(currentGroupName).SendAsync("ReceiveMessage", json);
+
+        if (currentGroupName != null)
+        {
+            await Clients.Group(currentGroupName).SendAsync("ReceiveMessage", json);
+        }
     }
 
     public async Task SwitchGroup(string groupName)

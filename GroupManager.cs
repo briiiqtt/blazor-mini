@@ -1,7 +1,4 @@
-using System.Collections;
 using System.Collections.Concurrent;
-using System.Security.Principal;
-using Microsoft.AspNetCore.SignalR;
 
 public class GroupManager
 {
@@ -22,8 +19,4 @@ public class GroupManager
     return UserGroups.TryGetValue(connectionId, out groupName);
   }
 
-  public void UpdateUserGroup(string connectionId, string groupName)
-  {
-    UserGroups[connectionId] = groupName;
-  }
 }
