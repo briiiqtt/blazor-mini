@@ -17,9 +17,6 @@ Blazor를 이용해 만든 채팅과 방명록입니다.
 
 ### 채팅
 
-[시연 영상(0분22초)](https://drive.google.com/file/d/1sJI_9ls1SjHEM1f7-dt5AdNAYWOCKcsG/view?usp=sharing)
-
-
 채팅은 다음 내용으로 구성되어 있습니다.
 - signalR 클라이언트에서 서버의 허브에 연결과 콜백을 설정
 - 허브에서 이벤트별 처리를 구현하고 허브를 등록
