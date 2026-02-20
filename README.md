@@ -7,10 +7,10 @@
 - Blazor Server (ASP.NET)
 - MySQL
 
-## 주요 기능
+# 주요 기능
 
 
-### 채팅
+## 채팅
 
 ![image](./asset/chat.png)
 
@@ -23,7 +23,7 @@
 
 
 
-### 방명록
+## 방명록
 
 ![image](./asset/comment.png)
 
